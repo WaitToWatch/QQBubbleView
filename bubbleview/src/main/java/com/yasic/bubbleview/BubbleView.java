@@ -7,23 +7,21 @@ import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-
 /**
  * Created by Yasic on 2016/6/1.
  */
-public class BubbleView extends RelativeLayout{
+public class BubbleView extends RelativeLayout {
     private List<Drawable> drawableList = new ArrayList<>();
 
     private int viewWidth = dp2pix(16), viewHeight = dp2pix(16);
@@ -53,22 +51,22 @@ public class BubbleView extends RelativeLayout{
         super(context, attrs, defStyleAttr);
     }
 
-    public BubbleView setDrawableList(List<Drawable> drawableList){
+    public BubbleView setDrawableList(List<Drawable> drawableList) {
         this.drawableList = drawableList;
         return this;
     }
 
-    public BubbleView setRiseDuration(int riseDuration){
+    public BubbleView setRiseDuration(int riseDuration) {
         this.riseDuration = riseDuration;
         return this;
     }
 
-    public BubbleView setBottomPadding(int px){
+    public BubbleView setBottomPadding(int px) {
         this.bottomPadding = px;
         return this;
     }
 
-    public BubbleView setOriginsOffset(int px){
+    public BubbleView setOriginsOffset(int px) {
         this.originsOffset = px;
         return this;
     }
@@ -79,26 +77,26 @@ public class BubbleView extends RelativeLayout{
         return this;
     }
 
-    public BubbleView setAnimationDelay(int delay){
+    public BubbleView setAnimationDelay(int delay) {
         this.innerDelay = delay;
         return this;
     }
 
-    public void setMaxHeartNum(int maxHeartNum){
+    public void setMaxHeartNum(int maxHeartNum) {
         this.maxHeartNum = maxHeartNum;
     }
 
-    public void setMinHeartNum(int minHeartNum){
+    public void setMinHeartNum(int minHeartNum) {
         this.minHeartNum = minHeartNum;
     }
 
-    public BubbleView setItemViewWH(int viewWidth, int viewHeight){
+    public BubbleView setItemViewWH(int viewWidth, int viewHeight) {
         this.viewHeight = viewHeight;
         this.viewWidth = viewWidth;
         return this;
     }
 
-    public BubbleView setGiftBoxImaeg(Drawable drawable, int positionX, int positionY){
+    public BubbleView setGiftBoxImaeg(Drawable drawable, int positionX, int positionY) {
         ImageView imageView = new ImageView(getContext());
         imageView.setImageDrawable(drawable);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageView.getWidth(), imageView.getHeight());
@@ -108,46 +106,79 @@ public class BubbleView extends RelativeLayout{
         return this;
     }
 
-    public void startAnimation(final int rankWidth, final int rankHeight){
-        Observable.timer(innerDelay, TimeUnit.MILLISECONDS)
-                .repeat((int)(Math.random() * (maxHeartNum - minHeartNum)) + minHeartNum)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Long>() {
-                    @Override
-                    public void call(Long aLong) {
-                        bubbleAnimation(rankWidth, rankHeight);
-                    }
-                });
+    public void startAnimation(final int rankWidth, final int rankHeight) {
+        //TODO 去除Rx
+        //每隔innerDelay的时间就触发一遍bubbleAnimation，重复次数repeat
+        int repeat = (int) (Math.random() * (maxHeartNum - minHeartNum + 1)) + minHeartNum;
+        new CountDownTimer(innerDelay * repeat, innerDelay) {
+            public void onTick(long millisUntilFinished) {
+                bubbleAnimation(rankWidth, rankHeight);
+            }
+
+            public void onFinish() {
+                bubbleAnimation(rankWidth, rankHeight);
+            }
+        }.start();
+//        Observable.timer(innerDelay, TimeUnit.MILLISECONDS)
+//                .repeat((int)(Math.random() * (maxHeartNum - minHeartNum + 1)) + minHeartNum)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Action1<Long>() {
+//                    @Override
+//                    public void call(Long aLong) {
+//                        bubbleAnimation(rankWidth, rankHeight);
+//                    }
+//                });
     }
 
-    public void startAnimation(final int rankWidth, final int rankHeight, int count){
-        Observable.timer(innerDelay, TimeUnit.MILLISECONDS)
-                .repeat(count)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Long>() {
-                    @Override
-                    public void call(Long aLong) {
-                        bubbleAnimation(rankWidth, rankHeight);
-                    }
-                });
+    public void startAnimation(final int rankWidth, final int rankHeight, int count) {
+        new CountDownTimer(innerDelay * count, innerDelay) {
+            public void onTick(long millisUntilFinished) {
+                bubbleAnimation(rankWidth, rankHeight);
+            }
+
+            public void onFinish() {
+                bubbleAnimation(rankWidth, rankHeight);
+            }
+        }.start();
+//        Observable.timer(innerDelay, TimeUnit.MILLISECONDS)
+//                .repeat(count)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Action1<Long>() {
+//                    @Override
+//                    public void call(Long aLong) {
+//                        bubbleAnimation(rankWidth, rankHeight);
+//                    }
+//                });
     }
 
-    public void startAnimation(final int rankWidth, final int rankHeight, int delay, int count){
-        Observable.timer(delay, TimeUnit.MILLISECONDS)
-                .repeat(count)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Long>() {
-                    @Override
-                    public void call(Long aLong) {
-                        bubbleAnimation(rankWidth, rankHeight);
-                    }
-                });
+    @Deprecated
+    public void startAnimation(final int rankWidth, final int rankHeight, int delay, int count) {
+//        new CountDownTimer(innerDelay * count, innerDelay) {
+//            public void onTick(long millisUntilFinished) {
+//                bubbleAnimation(rankWidth, rankHeight);
+//            }
+//
+//            public void onFinish() {
+//                bubbleAnimation(rankWidth, rankHeight);
+//            }
+//        }.start();
+
+//        Observable.timer(delay, TimeUnit.MILLISECONDS)
+//                .repeat(count)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Action1<Long>() {
+//                    @Override
+//                    public void call(Long aLong) {
+//                        bubbleAnimation(rankWidth, rankHeight);
+//                    }
+//                });
     }
 
-    private void bubbleAnimation(int rankWidth, int rankHeight){
-        rankHeight -= bottomPadding;
-        int seed = (int)(Math.random() * 3);
-        switch (seed){
+    private void bubbleAnimation(int rankWidth, int rankHeight) {
+        rankHeight -= bottomPadding;//自己设定的paddingBottom
+        //改变萌发点的位置
+        int seed = (int) (Math.random() * 3);
+        switch (seed) {
             case 0:
                 rankWidth -= originsOffset;
                 break;
@@ -158,32 +189,33 @@ public class BubbleView extends RelativeLayout{
                 rankHeight -= originsOffset;
                 break;
         }
-
+        //创建ImageView取出随机的一个图片
         int heartDrawableIndex;
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(viewWidth, viewHeight);
-        heartDrawableIndex = (int)(drawableList.size() * Math.random());
+        heartDrawableIndex = (int) (drawableList.size() * Math.random());
         ImageView tempImageView = new ImageView(getContext());
         tempImageView.setImageDrawable(drawableList.get(heartDrawableIndex));
         addView(tempImageView, layoutParams);
-
+        //动画(透明度+放大)
         ObjectAnimator riseAlphaAnimator = ObjectAnimator.ofFloat(tempImageView, "alpha", 1.0f, 0.0f);
         riseAlphaAnimator.setDuration(riseDuration);
 
-        ObjectAnimator riseScaleXAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleX", minScale, maxScale);
+        ObjectAnimator riseScaleXAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleX", minScale, maxScale*2);
         riseScaleXAnimator.setDuration(riseDuration);
 
-        ObjectAnimator riseScaleYAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleY", minScale, maxScale);
+        ObjectAnimator riseScaleYAnimator = ObjectAnimator.ofFloat(tempImageView, "scaleY", minScale, maxScale*2);
         riseScaleYAnimator.setDuration(riseDuration);
-
+        //贝塞尔曲线的路径
         ValueAnimator valueAnimator = getBesselAnimator(tempImageView, rankWidth, rankHeight);
+        //组合播放动画
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.play(valueAnimator).with(riseAlphaAnimator).with(riseScaleXAnimator).with(riseScaleYAnimator);
         animatorSet.start();
     }
-
-    private ValueAnimator getBesselAnimator(final ImageView imageView, int rankWidth, int rankHeight){
+    //四个点从何而得
+    private ValueAnimator getBesselAnimator(final ImageView imageView, int rankWidth, int rankHeight) {
         float point0[] = new float[2];
-        point0[0] = rankWidth/2;
+        point0[0] = rankWidth / 2;
         point0[1] = rankHeight;
 
         float point1[] = new float[2];
@@ -197,9 +229,9 @@ public class BubbleView extends RelativeLayout{
         float point3[] = new float[2];
         point3[0] = (float) (Math.random() * rankWidth);
         point3[1] = 0;
-
-        BesselEvaluator besselEvaluator = new BesselEvaluator(point1, point2);
-        ValueAnimator valueAnimator = ValueAnimator.ofObject(besselEvaluator, point0, point3);
+        //插值器干涉加速度 估值器干涉路径
+        BesselEvaluator besselEvaluator = new BesselEvaluator(point1, point2);//1/2此处传入
+        ValueAnimator valueAnimator = ValueAnimator.ofObject(besselEvaluator, point0, point3);//0/3此处传入 为start和end
         valueAnimator.setDuration(riseDuration);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -234,11 +266,11 @@ public class BubbleView extends RelativeLayout{
         });
         return valueAnimator;
     }
-
+    //实现TypeEvaluator接口
     public class BesselEvaluator implements TypeEvaluator<float[]> {
         private float point1[] = new float[2], point2[] = new float[2];
 
-        public BesselEvaluator(float[] point1, float[] point2){
+        public BesselEvaluator(float[] point1, float[] point2) {
             this.point1 = point1;
             this.point2 = point2;
         }
@@ -246,10 +278,10 @@ public class BubbleView extends RelativeLayout{
         @Override
         public float[] evaluate(float fraction, float[] point0, float[] point3) {
             float[] currentPosition = new float[2];
-            currentPosition[0] = point0[0] * (1 - fraction) * (1 - fraction) * (1 - fraction)
-                    + point1[0] * 3 * fraction * (1 - fraction) * (1 - fraction)
-                    + point2[0] * 3 * (1 - fraction) * fraction * fraction
-                    + point3[0] * fraction * fraction * fraction;
+            currentPosition[0] = point0[0] * (1 - fraction) * (1 - fraction) * (1 - fraction)//P0(1-t)3
+                    + point1[0] * 3 * fraction * (1 - fraction) * (1 - fraction)//3P1*t*(1-t)2
+                    + point2[0] * 3 * (1 - fraction) * fraction * fraction//3P2t*t(1-t)
+                    + point3[0] * fraction * fraction * fraction;//P3t3
             currentPosition[1] = point0[1] * (1 - fraction) * (1 - fraction) * (1 - fraction)
                     + point1[1] * 3 * fraction * (1 - fraction) * (1 - fraction)
                     + point2[1] * 3 * (1 - fraction) * fraction * fraction
@@ -258,15 +290,15 @@ public class BubbleView extends RelativeLayout{
         }
     }
 
-    private int dp2pix(int dp){
+    private int dp2pix(int dp) {
         float scale = getResources().getDisplayMetrics().density;
         int pix = (int) (dp * scale + 0.5f);
         return pix;
     }
 
-    private int pix2dp(int pix){
+    private int pix2dp(int pix) {
         float scale = getResources().getDisplayMetrics().density;
-        int dp = (int) (pix/scale + 0.5f);
+        int dp = (int) (pix / scale + 0.5f);
         return dp;
     }
 }
